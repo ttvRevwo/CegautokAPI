@@ -42,7 +42,6 @@ public partial class FlottaContext : DbContext
         modelBuilder.Entity<Gepjarmu>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
-
             entity.ToTable("gepjarmu");
 
             entity.Property(e => e.Id).HasColumnType("int(11)");
