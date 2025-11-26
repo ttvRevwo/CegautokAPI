@@ -1,4 +1,5 @@
-﻿using CegautokAPI.Models;
+﻿using CegautokAPI.DTOs;
+using CegautokAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,11 +43,19 @@ namespace CegautokAPI.Controllers
                 try
                 {
                     string doubleHash = Program.CreateSHA256(loginDTO.SentHash);
+                    User user = context.Users.FirstOrDefault(u =>
+                    u.LoginName == loginDTO.LoginName &&
+                    u.Hash == doubleHash &&
+                    u.Active);
+                    if (user == null)
+                        return NotFound("Nincs ilyen felhasználó, vagy inaktív a fiók!");
+                    return Ok("Sikeres bejelentkezés, küldöm a tokent");
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     return BadRequest($"Hiba a bejelentkezés során: {ex.Message}");
                 }
+            }
         }
     }
 }
