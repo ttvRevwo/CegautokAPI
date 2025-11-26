@@ -1,6 +1,8 @@
-﻿using CegautokAPI.Models;
+﻿using CegautokAPI.DTOs;
+using CegautokAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CegautokAPI.Controllers
 {
@@ -125,5 +127,64 @@ namespace CegautokAPI.Controllers
                 }
             }
         }
+
+        [HttpGet("{id}/Hasznalat")]
+        public IActionResult GetHasznalatById(int id)
+        {
+            using (var context = new FlottaContext())
+            {
+                try
+                {
+                    List<JarmuHasznalatDTO> valasz = context.Kikuldottjarmus.Include(k => k.Kikuldetes).Include(k => k.GepJarmu).Where(j => j.GepJarmuId == id).Select(j => new JarmuHasznalatDTO
+                    {
+                        Id = id,
+                        Rendszam = j.GepJarmu.Rendszam,
+                        Kezdes = j.Kikuldetes.Kezdes,
+                        Befejezes = j.Kikuldetes.Befejezes
+                    }).OrderBy(j => j.Kezdes).ToList();
+                    return Ok(valasz);
+                }
+                catch (Exception ex)
+                {
+                    List<JarmuHasznalatDTO> valasz = new List<JarmuHasznalatDTO>() { new()
+                    {
+                        Id = -1,
+                        Rendszam = "hiba" } };
+                    return BadRequest(valasz);
+                }
+            }
+        }
+
+        [HttpGet("Sofor")]
+        public IActionResult GetSofor()
+        {
+            using (var context = new FlottaContext())
+            {
+                try
+                {
+                    List<SoforDTO> valasz = context.Kikuldottjarmus
+                        .Include(j => j.GepJarmu)
+                        .Include(j => j.SoforNavigation)
+                        .GroupBy(j => new { rsz = j.GepJarmu.Rendszam, so = j.SoforNavigation.Name })
+                        .Select(elem => new SoforDTO()
+                        {
+                            Rendszam = elem.Key.rsz,
+                            SoforNev = elem.Key.so,
+                            Darab = elem.Count()
+                        }).ToList();
+                    return Ok(valasz);
+                }
+                catch (Exception ex)
+                {
+                    List<SoforDTO> valasz = new List<SoforDTO>() { new()
+                    {
+                        Rendszam = "hiba",
+                        SoforNev = ex.Message
+                    } };
+                    return BadRequest(valasz);
+                }
+            }
+        }
+        // KikuldetesController, adott ID-jű kiküldetésen ki volt a sofor
     }
 }

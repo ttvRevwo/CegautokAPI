@@ -1,30 +1,36 @@
-﻿using CegautokAPI.Models;
+﻿using CegautokAPI.DTOs;
+using CegautokAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CegautokAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class KikuldetesController : ControllerBase
     {
-        [HttpGet("Kikuldetes")]
+        [HttpGet("Jarmuvek")]
         public IActionResult GetAllKikuldetesek()
         {
             using (var context = new FlottaContext())
             {
                 try
                 {
-                    List<Kikuldete> kikuldesek = context.Kikuldetes.ToList();
+                    List<KikuldJarmu> kikuldesek = context.Kikuldottjarmus.Include(x => x.Kikuldetes).Include(x => x.GepJarmu).Select(x => new KikuldJarmu()
+                    {
+                        Cim = x.Kikuldetes.Cim,
+                        Datum = x.Kikuldetes.Kezdes,
+                        Rendszam = x.GepJarmu.Rendszam
+                    }).ToList();
                     return Ok(kikuldesek);
                 }
                 catch (Exception ex)
                 {
-                    List<Kikuldete> valasz = new List<Kikuldete>();
-                    Kikuldete hiba = new Kikuldete()
+                    List<KikuldJarmu> valasz = new List<KikuldJarmu>();
+                    KikuldJarmu hiba = new KikuldJarmu()
                     {
-                        Id = -1,
-                        Celja = $"Hiba a betöltés során: {ex.Message}"
+                        Cim = $"Hiba a kérés teljesítése során: {ex.Message}"
                     };
                     valasz.Add(hiba);
                     return BadRequest(valasz);
@@ -60,6 +66,8 @@ namespace CegautokAPI.Controllers
                 }
             }
         }
+
+        
 
         [HttpPost("NewKikuldetes")]
         public IActionResult NewKikuldete(Kikuldete kikuldetes)
@@ -124,6 +132,35 @@ namespace CegautokAPI.Controllers
                     return BadRequest($"Hiba a törlés közben: {ex.Message}");
                 }
             }
+        }
+
+        [HttpGet("SoforKikuldetesId/{id}")]
+        public IActionResult GetSoforByKikuldId(int id)
+        {
+            using (var context = new FlottaContext())
+            {
+                try
+                {
+                    var Sofor = context.Kikuldottjarmus
+                        .Include(j => j.Kikuldetes)
+                        .Include(j => j.SoforNavigation)
+                        .FirstOrDefault(k => k.Kikuldetes.Id == id);
+                    if(Sofor != null)
+                    {
+                        string SoforNeve = Sofor.SoforNavigation.Name;
+                        return Ok(SoforNeve);
+                    }
+                    else
+                    {
+                        return NotFound("Nem találom a keresett kiküldetést.");
+                    }
+                }
+                catch(Exception ex)
+                {
+                    return BadRequest($"Hiba: {ex.Message}");
+                }
+            }
+
         }
     }
 }

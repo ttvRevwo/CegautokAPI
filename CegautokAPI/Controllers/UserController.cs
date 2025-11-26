@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using CegautokAPI.Models;
 using CegautokAPI.Controllers;
 using System.Linq.Expressions;
+using CegautokAPI.DTOs;
 
 namespace CegautokAPI.Controllers
 {
@@ -77,7 +78,7 @@ namespace CegautokAPI.Controllers
                     return Ok("Sikeres rögzítés!");
                 }
                 catch (Exception ex)
-                { 
+                {
                     return BadRequest($"Hiba a rögzítés közben: {ex.Message}");
                 }
         }
@@ -129,5 +130,28 @@ namespace CegautokAPI.Controllers
                 }
             }
         }
-    } 
+
+        [HttpGet("Jarmuvek/{Id}")]
+        public IActionResult GetUserJamuvek(int id)
+        {
+            using (var context = new FlottaContext())
+            {
+                try
+                {
+                    List<SoforJarmu> valasz = context.Kikuldottjarmus.Include(x => x.Kikuldetes).Include(x => x.GepJarmu).Include(x => x.SoforNavigation).Where(x => x.SoforNavigation.Id == id).Select(x => new SoforJarmu()
+                    {
+                        Id = id,
+                        Name = x.SoforNavigation.Name,
+                        Kezdes = x.Kikuldetes.Kezdes,
+                        Rendszam = x.GepJarmu.Rendszam
+                    }).ToList();
+                    return Ok(valasz);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest($"Hiba az adatok betöltése során: {ex.Message}");
+                }
+            }
+        }
+    }
 }
