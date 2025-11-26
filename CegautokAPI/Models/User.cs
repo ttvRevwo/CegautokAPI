@@ -9,6 +9,10 @@ public partial class User
 
     public string Name { get; set; } = null!;
 
+    public string LoginName { get; set; } = null!;
+
+    public bool Active { get; set; }
+
     public string Address { get; set; } = null!;
 
     public string Email { get; set; } = null!;
@@ -23,7 +27,7 @@ public partial class User
 
     public int Permission { get; set; }
 
-    public virtual ICollection<Kikuldottjarmu> Kikuldottjarmus { get; set; } = new List<Kikuldottjarmu>();
+    public virtual ICollection<Kikuldottjarmu>? Kikuldottjarmus { get; set; } = new List<Kikuldottjarmu>();
 
     public virtual Privilege? PermissionNavigation { get; set; } = null!;
 }
