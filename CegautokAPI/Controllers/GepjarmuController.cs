@@ -1,5 +1,6 @@
 ﻿using CegautokAPI.DTOs;
 using CegautokAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ namespace CegautokAPI.Controllers
     [ApiController]
     public class GepjarmuController : ControllerBase
     {
+        [Authorize]
         [HttpGet("Gepjarmu")]
         public IActionResult GetAllGepjarmus()
         {
@@ -135,10 +137,10 @@ namespace CegautokAPI.Controllers
             {
                 try
                 {
-                    List<JarmuHasznalatDTO> valasz = context.Kikuldottjarmus.Include(k => k.Kikuldetes).Include(k => k.GepJarmu).Where(j => j.GepJarmuId == id).Select(j => new JarmuHasznalatDTO
+                    List<JarmuHasznalatDTO> valasz = context.Kikuldottjarmus.Include(k => k.Kikuldetes).Include(k => k.Gepjarmu).Where(j => j.GepjarmuId == id).Select(j => new JarmuHasznalatDTO
                     {
                         Id = id,
-                        Rendszam = j.GepJarmu.Rendszam,
+                        Rendszam = j.Gepjarmu.Rendszam,
                         Kezdes = j.Kikuldetes.Kezdes,
                         Befejezes = j.Kikuldetes.Befejezes
                     }).OrderBy(j => j.Kezdes).ToList();
@@ -163,9 +165,9 @@ namespace CegautokAPI.Controllers
                 try
                 {
                     List<SoforDTO> valasz = context.Kikuldottjarmus
-                        .Include(j => j.GepJarmu)
+                        .Include(j => j.Gepjarmu)
                         .Include(j => j.SoforNavigation)
-                        .GroupBy(j => new { rsz = j.GepJarmu.Rendszam, so = j.SoforNavigation.Name })
+                        .GroupBy(j => new { rsz = j.Gepjarmu.Rendszam, so = j.SoforNavigation.Name })
                         .Select(elem => new SoforDTO()
                         {
                             Rendszam = elem.Key.rsz,

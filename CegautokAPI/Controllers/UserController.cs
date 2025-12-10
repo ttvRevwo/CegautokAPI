@@ -138,12 +138,12 @@ namespace CegautokAPI.Controllers
             {
                 try
                 {
-                    List<SoforJarmu> valasz = context.Kikuldottjarmus.Include(x => x.Kikuldetes).Include(x => x.GepJarmu).Include(x => x.SoforNavigation).Where(x => x.SoforNavigation.Id == id).Select(x => new SoforJarmu()
+                    List<SoforJarmu> valasz = context.Kikuldottjarmus.Include(x => x.Kikuldetes).Include(x => x.Gepjarmu).Include(x => x.SoforNavigation).Where(x => x.SoforNavigation.Id == id).Select(x => new SoforJarmu()
                     {
                         Id = id,
                         Name = x.SoforNavigation.Name,
                         Kezdes = x.Kikuldetes.Kezdes,
-                        Rendszam = x.GepJarmu.Rendszam
+                        Rendszam = x.Gepjarmu.Rendszam
                     }).ToList();
                     return Ok(valasz);
                 }

@@ -17,11 +17,11 @@ namespace CegautokAPI.Controllers
             {
                 try
                 {
-                    List<KikuldJarmu> kikuldesek = context.Kikuldottjarmus.Include(x => x.Kikuldetes).Include(x => x.GepJarmu).Select(x => new KikuldJarmu()
+                    List<KikuldJarmu> kikuldesek = context.Kikuldottjarmus.Include(x => x.Kikuldetes).Include(x => x.Gepjarmu).Select(x => new KikuldJarmu()
                     {
                         Cim = x.Kikuldetes.Cim,
                         Datum = x.Kikuldetes.Kezdes,
-                        Rendszam = x.GepJarmu.Rendszam
+                        Rendszam = x.Gepjarmu.Rendszam
                     }).ToList();
                     return Ok(kikuldesek);
                 }
